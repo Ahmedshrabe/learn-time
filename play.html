@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="light only">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<title>Learn Time · Play</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+<style>
+:root{
+  --ink:#111216; --ink-2:#3B3D45; --muted:#6E717C; --num:#9B9EAA; --line:#E7E7EC; --soft:#F6F6F8; --soft-2:#F1F1F3;
+  --brand:#5B3DF5; --brand-2:#4A2DE0; --brand-tint:#EFECFF;
+  --ok:#58B55A; --ok-ink:#3E8E40; --ok-bg:#F0FBF0; --no:#D9463E; --no-bg:#FCEFEE;
+  --font:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*,*::before,*::after{box-sizing:border-box}
+html,body{margin:0; min-height:100%; background:#fff; color:var(--ink); font-family:var(--font); -webkit-font-smoothing:antialiased}
+body{padding:env(safe-area-inset-top,0) 0 env(safe-area-inset-bottom,0)}
+button,input{font:inherit; color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:3px solid var(--brand); outline-offset:3px; border-radius:10px}
+h1,h2,p{margin:0}
+.hidden{display:none!important}
+main{max-width:480px; margin:0 auto; padding:20px 16px 32px; min-height:100dvh; display:flex; flex-direction:column}
+.top{display:flex; align-items:center; justify-content:space-between; font-size:14px; color:var(--muted); min-height:36px}
+.top b{color:var(--ink); font-weight:600}
+.me{display:flex; align-items:center; gap:8px}
+.me .av{width:32px; height:32px}
+.view{flex:1; display:flex; flex-direction:column; animation:rise .35s cubic-bezier(.2,.8,.2,1)}
+@keyframes rise{from{opacity:0; transform:translateY(10px)}}
+.center{justify-content:center; align-items:center; text-align:center; gap:12px}
+h1{font-size:34px; font-weight:800; letter-spacing:-.03em; line-height:1.08; margin-top:20px}
+.desc{font-size:17px; color:var(--muted); line-height:1.5; margin-top:8px}
+label{display:block; font-size:15px; font-weight:600; color:var(--ink-2); margin:24px 0 8px}
+input{width:100%; height:56px; border:1.5px solid var(--line); border-radius:14px; padding:0 16px; font-size:18px; background:#fff}
+input:focus{border-color:var(--brand); outline:none; box-shadow:0 0 0 3px var(--brand-tint)}
+.avs{display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+.avs button{border:1.5px solid var(--line); background:#fff; border-radius:18px; padding:8px; aspect-ratio:1; display:grid; place-items:center; transition:border-color .15s, background .15s}
+.avs button[aria-pressed="true"]{border:3px solid var(--brand); background:var(--brand-tint); padding:6.5px}
+.av svg{width:100%; height:100%; display:block}
+.btn{border:0; background:var(--brand); color:#fff; border-radius:14px; height:58px; width:100%; font-size:19px; font-weight:600; box-shadow:inset 0 -3px 0 rgba(0,0,0,.18); margin-top:24px}
+.btn:disabled{background:var(--soft-2); color:#C2C3CA; box-shadow:none; cursor:default}
+.err{color:var(--no); font-size:15px; margin-top:10px; min-height:20px}
+.big-av{width:132px; height:132px}
+.name{font-size:26px; font-weight:700}
+.pill{display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:8px 16px; font-size:15px; font-weight:600; background:var(--soft-2); color:var(--ink-2)}
+.pill.p{background:var(--brand-tint); color:var(--brand)}
+.qmeta{display:flex; justify-content:space-between; font-size:14px; color:var(--num); margin-top:16px}
+.bar{height:8px; border-radius:99px; background:var(--soft-2); overflow:hidden; margin-top:10px}
+.bar i{display:block; height:100%; background:var(--ink); transform-origin:left}
+.bar.low i{background:var(--no)}
+.hq{font-size:22px; font-weight:700; line-height:1.3; letter-spacing:-.01em; margin-top:18px}
+.opts{display:grid; gap:12px; margin-top:20px}
+.opt{display:flex; align-items:center; gap:14px; width:100%; text-align:left; border:1.5px solid var(--line); background:#fff; border-radius:16px; padding:16px; min-height:64px; font-size:17px; line-height:1.35; transition:border-color .15s, background .15s}
+.opt:active{background:var(--soft)}
+.opt .n{flex:none; width:36px; height:36px; border-radius:10px; display:grid; place-items:center; color:#fff; font-weight:700; font-size:17px}
+.opt.big{min-height:96px; font-size:20px; font-weight:600}
+.hint{font-size:15px; color:var(--muted); margin-top:14px; text-align:center}
+.res{width:96px; height:96px; border-radius:50%; display:grid; place-items:center}
+.res svg{width:48px; height:48px; stroke:#fff; stroke-width:3; fill:none; stroke-linecap:round; stroke-linejoin:round}
+.res.ok{background:var(--ok)} .res.no{background:var(--no)} .res.wait{background:var(--soft-2)} .res.wait svg{stroke:var(--muted)}
+.gain{font-size:44px; font-weight:800; letter-spacing:-.03em}
+.stats{display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; margin-top:12px}
+.stat{border:1.5px solid var(--line); border-radius:16px; padding:14px; text-align:left}
+.stat span{font-size:14px; color:var(--muted)} .stat b{display:block; font-size:26px; margin-top:2px}
+.place{font-size:84px; font-weight:800; letter-spacing:-.04em; line-height:1; color:var(--brand)}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{animation-duration:.01ms!important; transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<main>
+  <div class="top"><span>Learn Time<span id="roomTag"></span></span><span class="me hidden" id="meTag"><span class="av" id="meAv"></span><b id="meName"></b></span></div>
+
+  <section class="view" id="vJoin">
+    <h1>Join the quiz</h1>
+    <p class="desc">Pick a name and an avatar. Questions show up here, and faster right answers earn more points.</p>
+    <div id="codeBox"><label for="code">Room code</label><input id="code" inputmode="numeric" maxlength="4" autocomplete="off" placeholder="4 digits"></div>
+    <label for="nm">Your name</label>
+    <input id="nm" maxlength="20" autocomplete="nickname" placeholder="e.g. Sara" enterkeyhint="done">
+    <label id="avLbl">Avatar</label>
+    <div class="avs" id="avs" role="group" aria-labelledby="avLbl"></div>
+    <button class="btn" id="join" disabled>Join</button>
+    <p class="err" id="err" role="alert"></p>
+  </section>
+
+  <section class="view center hidden" id="vWait">
+    <div class="big-av av" id="wAv"></div>
+    <div class="name" id="wName"></div>
+    <p class="desc" id="wMsg">You’re in. Eyes on the big screen.</p>
+    <div class="stats hidden" id="wStats"><div class="stat"><span>Points</span><b id="wPts">0</b></div><div class="stat"><span>Place</span><b id="wRank">–</b></div></div>
+  </section>
+
+  <section class="view hidden" id="vQ">
+    <div class="qmeta"><span id="qNum"></span><span id="qLeft"></span></div>
+    <div class="bar" id="qBar"><i id="qFill"></i></div>
+    <h2 class="hq" id="qText"></h2>
+    <div class="opts" id="opts"></div>
+    <p class="hint" id="qHint"></p>
+  </section>
+
+  <section class="view center hidden" id="vRes">
+    <div class="res" id="rIc"></div>
+    <h1 id="rT" style="margin-top:8px"></h1>
+    <div class="gain" id="rGain"></div>
+    <div class="stats"><div class="stat"><span>Points</span><b id="rPts">0</b></div><div class="stat"><span>Place</span><b id="rRank">–</b></div></div>
+  </section>
+
+  <section class="view center hidden" id="vPod">
+    <span class="pill p">Final results</span>
+    <div class="place" id="pPlace"></div>
+    <div class="big-av av" id="pAv"></div>
+    <h1 id="pT" style="margin-top:0"></h1>
+    <p class="desc" id="pPts"></p>
+  </section>
+</main>
+
+<script>
+/* Live play config. Firebase console → Project settings → Your apps → Web app → SDK config.
+   Leave apiKey empty to run the deck without phones (the room calls the answer, like before).
+   A Firebase web apiKey is not a secret: access is controlled by database.rules.json. */
+const FB_CONFIG={
+  apiKey:"AIzaSyD-uG8m8zvOQpvT6QenmroKuhpRx00zs5A",
+  authDomain:"dxe-learn-time.firebaseapp.com",
+  databaseURL:"https://dxe-learn-time-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId:"dxe-learn-time",
+  appId:"1:917112361405:web:bd323e6535f870d85b82d4"
+};
+/* Full URL of the hosted play.html, e.g. "https://learn-time.web.app/play.html".
+   Empty = play.html next to the deck (works when the deck itself is hosted, not opened from a file). */
+const PLAY_BASE="https://ahmedshrabe.github.io/learn-time/play.html";
+
+/* Live play, shared by the deck (host) and play.html (phones). Firebase Realtime Database + anonymous auth.
+   rooms/{code}/host            uid of the deck that owns the room
+   rooms/{code}/state           {ph:"wait"|"q"|"rev"|"pod", qi, q, lim, at, c, cnt}   written by host only
+   rooms/{code}/players/{uid}   {name, av, at}                                       each phone writes its own
+   rooms/{code}/answers/{qi}/{uid} {k, at}                                           once per question, server time
+   rooms/{code}/scores/{uid}/{qi}  points for that question                          written by host only */
+const LIVE_ON=!!(FB_CONFIG.apiKey&&FB_CONFIG.databaseURL&&window.firebase);
+let fdb=null, fuid=null, fOffset=0;
+async function liveInit(){ if(!LIVE_ON) return false;
+  try{ if(!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
+    const cred=await firebase.auth().signInAnonymously(); fuid=cred.user.uid; fdb=firebase.database();
+    fdb.ref(".info/serverTimeOffset").on("value",s=>fOffset=s.val()||0); return true;
+  }catch(e){ console.warn("Live play is off:",e); return false; } }
+const srvNow=()=>Date.now()+fOffset, TS=()=>firebase.database.ServerValue.TIMESTAMP;
+const roomRef=(code,p)=>fdb.ref(`rooms/${code}${p?"/"+p:""}`);
+/* totals from scores/{uid}/{qi}, sorted high to low; players with no points yet count as 0 */
+function ranking(players,scores){
+  return Object.keys(players||{}).map(id=>({id,...players[id],pts:Object.values((scores||{})[id]||{}).reduce((a,b)=>a+(+b||0),0)}))
+    .sort((a,b)=>b.pts-a.pts||(a.at||0)-(b.at||0)); }
+/* points: right answers earn 500–1000, more for answering sooner */
+const points=(ok,ms,lim)=>ok&&ms<=lim*1000+1500?Math.round(500+500*Math.max(0,1-ms/(lim*1000))):0;
+
+/* avatars: 16 line-style characters (8 colours × eyes / mouth / headwear) */
+const AV_COL=["#5B3DF5","#58B55A","#F2C94C","#4F8EF7","#EB5757","#F2994A","#9B51E0","#2DB5A8"], AV_N=16;
+function avatar(i){ i=((+i||0)%AV_N+AV_N)%AV_N; const c=AV_COL[i%8], eye=i%4, top=Math.floor(i/4)%4, mouth=(i+Math.floor(i/8))%3, k='stroke="#111216" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"';
+  const eyes=[`<circle cx="38" cy="50" r="5" fill="#111216"/><circle cx="62" cy="50" r="5" fill="#111216"/>`,
+    `<circle cx="38" cy="50" r="9" fill="#fff" ${k}/><circle cx="62" cy="50" r="9" fill="#fff" ${k}/><circle cx="40" cy="51" r="3.5" fill="#111216"/><circle cx="64" cy="51" r="3.5" fill="#111216"/>`,
+    `<path d="M31 52q7-8 14 0M55 52q7-8 14 0" fill="none" ${k}/>`,
+    `<circle cx="38" cy="50" r="5" fill="#111216"/><path d="M55 50h14" ${k}/>`][eye];
+  const mo=[`<path d="M40 66q10 9 20 0" fill="none" ${k}/>`,`<path d="M40 64h20q0 11-10 11t-10-11z" fill="#fff" ${k}/>`,`<circle cx="50" cy="68" r="5" fill="#fff" ${k}/>`][mouth];
+  const hat=["",`<path d="M50 16V5" ${k}/><circle cx="50" cy="5" r="4" fill="#F2C94C" ${k}/>`,
+    `<path d="M33 20l6-12 11 9 11-9 6 12z" fill="#F2C94C" ${k}/>`,
+    `<path d="M24 34q26-22 52 0" fill="none" ${k}/><rect x="17" y="40" width="9" height="18" rx="4" fill="#111216"/><rect x="74" y="40" width="9" height="18" rx="4" fill="#111216"/>`][top];
+  return `<svg viewBox="0 0 100 100" aria-hidden="true"><path d="M50 18c21 0 34 15 34 36v20c0 8-6 14-14 14H30c-8 0-14-6-14-14V54c0-21 13-36 34-36z" fill="${c}" ${k}/>${hat}<ellipse cx="50" cy="58" rx="27" ry="22" fill="#fff" opacity=".22"/>${eyes}${mo}</svg>`; }
+
+const OPT_COL=["#5B3DF5","#58B55A","#F2994A","#4F8EF7"];
+const IC={ok:'<svg viewBox="0 0 24 24"><path d="M5 12l4.5 4.5L19 7"/></svg>',no:'<svg viewBox="0 0 24 24"><path d="M7 7l10 10M17 7L7 17"/></svg>',wait:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>'};
+const $=id=>document.getElementById(id);
+const store={get(k,d){try{const v=localStorage.getItem("ltp:"+k);return v==null?d:v}catch(e){return d}},set(k,v){try{localStorage.setItem("ltp:"+k,v)}catch(e){}}};
+let code=(new URLSearchParams(location.search).get("r")||"").replace(/\D/g,"").slice(0,4);
+let av=+store.get("av",Math.floor(Math.random()*AV_N)), me=null, st={ph:"wait"}, players={}, scores={}, mine={}, tick=null, subs=[];
+
+function show(id){ ["vJoin","vWait","vQ","vRes","vPod"].forEach(v=>$(v).classList.toggle("hidden",v!==id)); }
+function standing(){ const r=ranking(players,scores), i=r.findIndex(p=>p.id===fuid); return {pts:i<0?0:r[i].pts, rank:i<0?null:i+1, of:r.length}; }
+const ord=n=>{ const s=["th","st","nd","rd"], v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]); };
+
+/* join */
+function renderAvs(){ $("avs").innerHTML=Array.from({length:AV_N},(_,i)=>`<button type="button" class="av" data-av="${i}" aria-label="Avatar ${i+1}" aria-pressed="${i===av}">${avatar(i)}</button>`).join(""); }
+function validate(){ $("join").disabled=!($("nm").value.trim()&&/^\d{4}$/.test(code)); }
+$("avs").onclick=e=>{ const b=e.target.closest("[data-av]"); if(!b) return; av=+b.dataset.av; store.set("av",av); renderAvs(); };
+$("nm").value=store.get("name","");
+$("nm").oninput=validate;
+$("code").value=code; $("codeBox").classList.toggle("hidden",/^\d{4}$/.test(code));
+$("code").oninput=e=>{ code=e.target.value.replace(/\D/g,"").slice(0,4); e.target.value=code; validate(); };
+$("nm").onkeydown=e=>{ if(e.key==="Enter"&&!$("join").disabled) $("join").click(); };
+$("join").onclick=async()=>{
+  const name=$("nm").value.trim().slice(0,20); $("join").disabled=true; $("err").textContent="";
+  try{
+    if(!(await roomRef(code,"host").once("value")).exists()) throw new Error("No room with that code. Check the big screen.");
+    me={name,av}; await roomRef(code,"players/"+fuid).set({name,av,at:TS()}); store.set("name",name);
+    enter();
+  }catch(e){ $("err").textContent=e.message||"Could not join. Try again."; validate(); }
+};
+
+/* live room */
+function enter(){
+  $("roomTag").innerHTML=` · Room <b>${esc(code)}</b>`; $("meTag").classList.remove("hidden");
+  $("meAv").innerHTML=avatar(me.av); $("meName").textContent=me.name;
+  subs.forEach(f=>f()); subs=[];
+  const on=(p,fn)=>{ const r=roomRef(code,p), h=r.on("value",s=>fn(s.val())); subs.push(()=>r.off("value",h)); };
+  on("players",v=>{ players=v||{}; render(); });
+  on("scores",v=>{ scores=v||{}; render(); });
+  on("state",v=>{ st=v||{ph:"wait"}; if(st.ph==="q"&&!(st.qi in mine)) roomRef(code,`answers/${st.qi}/${fuid}`).once("value").then(s=>{ if(s.exists()){ mine[st.qi]=s.val().k; render(); } }); render(); });
+}
+function render(){
+  clearInterval(tick); tick=null;
+  if(!me) return show("vJoin");
+  const sd=standing();
+  if(st.ph==="q"){
+    const lim=st.lim||20, picked=mine[st.qi];
+    const left=()=>Math.max(0,lim*1000-(srvNow()-(st.at||srvNow())));
+    if(picked!=null||left()<=0){ show("vRes"); $("rIc").className="res wait"; $("rIc").innerHTML=IC.wait;
+      $("rT").textContent=picked!=null?"Answer locked in":"Time’s up"; $("rGain").textContent=""; $("rPts").textContent=sd.pts; $("rRank").textContent=sd.rank?ord(sd.rank):"–"; return; }
+    show("vQ"); const q=st.q||{o:[]};
+    $("qNum").textContent=q.pos||"Question";
+    $("qText").textContent=q.q||""; const pick=q.t==="pick";
+    $("opts").innerHTML=(q.o||[]).map((o,k)=>`<button class="opt${pick?" big":""}" data-k="${k}"><span class="n" style="background:${OPT_COL[k%4]}">${k+1}</span><span>${esc(o)}</span></button>`).join("");
+    $("qHint").textContent=pick?"Look at the big screen and pick the design.":"";
+    const upd=()=>{ const l=left(); $("qFill").style.transform=`scaleX(${l/(lim*1000)})`; $("qBar").classList.toggle("low",l<5000); $("qLeft").textContent=`0:${String(Math.ceil(l/1000)).padStart(2,"0")}`; if(l<=0) render(); };
+    upd(); tick=setInterval(upd,200); return;
+  }
+  if(st.ph==="rev"){
+    const picked=mine[st.qi], ok=picked!=null&&picked===st.c, gain=((scores[fuid]||{})[st.qi])||0;
+    show("vRes"); $("rIc").className="res "+(ok?"ok":picked==null?"wait":"no"); $("rIc").innerHTML=ok?IC.ok:picked==null?IC.wait:IC.no;
+    $("rT").textContent=ok?"Correct!":picked==null?"No answer":"Incorrect!"; $("rGain").textContent=ok?`+${gain}`:"+0";
+    $("rPts").textContent=sd.pts; $("rRank").textContent=sd.rank?ord(sd.rank):"–"; return;
+  }
+  if(st.ph==="pod"){
+    show("vPod"); $("pPlace").textContent=sd.rank?ord(sd.rank):"–"; $("pAv").innerHTML=avatar(me.av);
+    $("pT").textContent=sd.rank===1?"You won!":sd.rank&&sd.rank<=3?"You made the podium!":"Thanks for playing!";
+    $("pPts").textContent=`${sd.pts} points · ${sd.of} players`; return;
+  }
+  show("vWait"); $("wAv").innerHTML=avatar(me.av); $("wName").textContent=me.name;
+  const played=Object.keys(scores).length>0; $("wStats").classList.toggle("hidden",!played);
+  $("wMsg").textContent=played?"Next question is coming. Eyes on the big screen.":"You’re in. Eyes on the big screen.";
+  $("wPts").textContent=sd.pts; $("wRank").textContent=sd.rank?ord(sd.rank):"–";
+}
+$("opts").onclick=async e=>{ const b=e.target.closest("[data-k]"); if(!b||st.ph!=="q"||st.qi in mine) return;
+  const qi=st.qi, k=+b.dataset.k; mine[qi]=k; render();
+  try{ await roomRef(code,`answers/${qi}/${fuid}`).set({k,at:TS()}); }catch(err){ /* already answered or too late */ } };
+function esc(s){return String(s??"").replace(/[&<>"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[m]))}
+
+renderAvs(); validate();
+(async()=>{
+  if(!(await liveInit())){ $("err").textContent="Live play isn’t set up yet. Ask the host."; $("join").disabled=true; $("nm").oninput=null; return; }
+  /* rejoin after a reload: same browser keeps the same anonymous uid */
+  if(/^\d{4}$/.test(code)){ const p=(await roomRef(code,"players/"+fuid).once("value").catch(()=>null))?.val(); if(p){ me={name:p.name,av:p.av}; enter(); } }
+})();
+</script>
+</body>
+</html>
