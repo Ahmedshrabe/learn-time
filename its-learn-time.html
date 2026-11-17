@@ -124,7 +124,6 @@ h1,h2,h3{margin:0; letter-spacing:-.02em}
 .jcard .qr img,.jcard .qr canvas{width:300px!important; height:300px!important}
 .jcard .lbl{font-size:18px; color:var(--muted); margin-top:22px}
 .jcard .code{font-size:72px; font-weight:800; letter-spacing:.12em; line-height:1.1; margin-top:2px}
-.jcard .url{font-size:17px; color:var(--muted); margin-top:8px; word-break:break-all}
 .lob{display:flex; flex-wrap:wrap; gap:12px; margin-top:32px; max-height:250px; overflow:hidden; align-content:flex-start}
 .chip{display:inline-flex; align-items:center; gap:10px; border:1.5px solid var(--line); border-radius:999px; padding:6px 18px 6px 6px; font-size:20px; font-weight:500; animation:rise .3s ease-out}
 .chip .av{width:44px; height:44px}
@@ -513,7 +512,7 @@ const S_JOIN=`<section class="slide" data-live="join"><div class="lesson"><div s
     <div class="lob" id="lob" data-in style="--dl:4"></div>
     <div class="actions" data-in style="--dl:5;border:0;padding-bottom:0"><button class="btn" data-go="next">Everyone’s in ${I.arrow}</button></div>
   </div>
-  <aside class="jcard" data-in style="--dl:3"><div class="qr" id="qrJoin"></div><span class="lbl">Room code</span><span class="code" id="roomCode">––––</span><span class="url" id="joinUrl"></span></aside>
+  <aside class="jcard" data-in style="--dl:3"><div class="qr" id="qrJoin"></div><span class="lbl">Room code</span><span class="code" id="roomCode">––––</span></aside>
   </div></section>`;
 const S_POD=`<section class="slide mid" data-live="pod">
   <div class="crumb" data-in><span>Learn Time</span><span>Winners</span></div>
@@ -658,10 +657,9 @@ function renderLive(){
   const r=ranking(players,scores), url=joinUrl(), qr=document.getElementById("qrJoin"), chip=(p,pre="",post="")=>`<span class="chip">${pre}<span class="av">${avatar(p.av)}</span>${esc(p.name)}${post}</span>`;
   document.getElementById("lobN").textContent=r.length;
   if(!liveOk){ lob.innerHTML=`<p class="note">${{sdk:"Couldn’t load Firebase. Check the internet connection and reload.",config:"Live play is off: add the Firebase config in src/live-config.js and rebuild."}[liveWhy]||`Couldn’t connect to Firebase (${esc(liveWhy)}). Reload, or double-click <b>present.command</b> in the learn-time folder.`}</p>`; qr.innerHTML=""; qr.dataset.u="";
-    document.getElementById("roomCode").textContent="––––"; document.getElementById("joinUrl").textContent=""; }
+    document.getElementById("roomCode").textContent="––––"; }
   else{ lob.innerHTML=r.map(p=>chip(p)).join("")||`<p class="note">Waiting for the first player…</p>`;
     document.getElementById("roomCode").textContent=room;
-    document.getElementById("joinUrl").textContent=url?url.replace(/^https?:\/\//,""):"Set PLAY_BASE in src/live-config.js to show the code";
     if(url&&qr.dataset.u!==url){ qr.innerHTML=""; qr.dataset.u=url; try{ new QRCode(qr,{text:url,width:300,height:300,colorDark:"#111216",colorLight:"#ffffff"}); qr.removeAttribute("title"); }catch(e){} } }
   const pod=document.getElementById("pod"), rest=document.getElementById("rest");
   if(!r.length){ pod.innerHTML=`<p class="note" style="grid-column:1/-1;text-align:center">Scores show up here once phones join.</p>`; rest.innerHTML=""; }
