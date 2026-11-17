@@ -168,13 +168,18 @@ const PLAY_BASE="https://ahmedshrabe.github.io/learn-time/play.html";
    rooms/{code}/players/{uid}   {name, av, at}                                       each phone writes its own
    rooms/{code}/answers/{qi}/{uid} {k, at}                                           once per question, server time
    rooms/{code}/scores/{uid}/{qi}  points for that question                          written by host only */
-const LIVE_ON=!!(FB_CONFIG.apiKey&&FB_CONFIG.databaseURL&&window.firebase);
-let fdb=null, fuid=null, fOffset=0;
-async function liveInit(){ if(!LIVE_ON) return false;
+let fdb=null, fuid=null, fOffset=0, liveWhy="";
+async function liveInit(){
+  /* why live play is off, so the deck can say what to do */
+  if(!FB_CONFIG.apiKey) { liveWhy="config"; return false; }
+  if(!window.firebase) { liveWhy="sdk"; return false; }
+  const limit=(p,ms)=>Promise.race([p,new Promise((_,no)=>setTimeout(()=>no(new Error("timeout")),ms))]);
   try{ if(!firebase.apps.length) firebase.initializeApp(FB_CONFIG);
-    const cred=await firebase.auth().signInAnonymously(); fuid=cred.user.uid; fdb=firebase.database();
+    /* outside http(s) (a file, a preview) keep the sign-in in memory: there may be no storage to keep it in */
+    if(!/^https?:$/.test(location.protocol)) await limit(firebase.auth().setPersistence(firebase.auth.Auth.Persistence.NONE),5000);
+    const cred=await limit(firebase.auth().signInAnonymously(),15000); fuid=cred.user.uid; fdb=firebase.database();
     fdb.ref(".info/serverTimeOffset").on("value",s=>fOffset=s.val()||0); return true;
-  }catch(e){ console.warn("Live play is off:",e); return false; } }
+  }catch(e){ console.warn("Live play is off:",e); liveWhy=e.code||e.message||"error"; return false; } }
 const srvNow=()=>Date.now()+fOffset, TS=()=>firebase.database.ServerValue.TIMESTAMP;
 const roomRef=(code,p)=>fdb.ref(`rooms/${code}${p?"/"+p:""}`);
 /* totals from scores/{uid}/{qi}, sorted high to low; players with no points yet count as 0 */
